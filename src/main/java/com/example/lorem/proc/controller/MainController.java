@@ -1,5 +1,6 @@
 package com.example.lorem.proc.controller;
 
+import com.example.lorem.proc.controller.validator.ParagraphTypeValidation;
 import com.example.lorem.proc.model.ParagraphType;
 import com.example.lorem.proc.model.Result;
 import com.example.lorem.proc.service.CalculateService;
@@ -20,6 +21,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
+@Validated
 public class MainController {
 
     Logger logger = LoggerFactory.getLogger(MainController.class);
@@ -37,11 +39,11 @@ public class MainController {
 
     @GetMapping
     @RequestMapping(value = "/betvictor/text")
-    @Validated
     public Result getText(@RequestParam @Min(value = 1, message = "Number of paragraphs must be greater than 0") Integer p,
-                          @RequestParam ParagraphType l) {
+                          @RequestParam @ParagraphTypeValidation String l) {
         long start = System.currentTimeMillis();
-        List<String> text = loremService.loadText(p, l);
+        ParagraphType type = ParagraphType.valueOf(l.toUpperCase());
+        List<String> text = loremService.loadText(p, type);
         Result result = calcService.process(text);
         result.setTotalProcessingTime(System.currentTimeMillis() - start);
 
